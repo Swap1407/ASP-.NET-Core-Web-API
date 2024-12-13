@@ -1,10 +1,7 @@
 # **ASP.NET Core Web API**
-
 ## **Introduction to ASP.NET Core Web API**
-
-This document provides an overview of **ASP.NET Core Web API**, explaining its purpose, key concepts, and advantages.
-
----
+<details>
+<summary> ---Expand--- </summary>
 
 ## **Why Do We Need Web APIs?**
 
@@ -102,3 +99,119 @@ ASP.NET Core Web API is essential for modern application development because it:
 | **Community and Future Support** | Part of the older .NET Framework; only receives bug fixes and security updates.           | Actively developed with new features, benefiting from Microsoft’s focus on modern ASP.NET Core architecture.                |
 | **Choosing Factors**     | Suitable for legacy systems and integration with older .NET Framework-based applications. | Preferred for cross-platform needs, high-performance applications, and modern development practices.                         | 
 
+Here are the key notes based on the given information about the ASP.NET Core Web API project structure:
+
+### Key Folders and Files in an ASP.NET Core Web API Project:
+![image](https://github.com/user-attachments/assets/f2e31b83-cd48-4151-8cd1-27c5a885270c)
+
+
+1. **Connected Services**:
+   - Allows easy connection to external services (e.g., Azure, Office 365, third-party REST APIs).
+   - Manages configurations and client code generation for external services.
+
+2. **Dependencies**:
+   - Contains all packages and SDKs installed in the project, including:
+     - **Analyzers**: Tools to check code quality and style violations.
+     - **Frameworks**: Core libraries and components required by the project, such as `Microsoft.AspNetCore.App` (MVC, Razor, etc.).
+     - **Packages**: External libraries for various functionalities like database access, logging, and authentication. E.g., `Swashbuckle.AspNetCore` for Swagger support.
+
+3. **Properties**:
+   - Contains `launchSettings.json`, which holds configuration settings for launching the app, such as URLs, environment variables, and profile settings (HTTP, HTTPS, IIS Express).
+
+4. **Controllers Folder**:
+   - Holds controller classes responsible for handling HTTP requests and returning responses.
+   - Default example: `WeatherForecastController`.
+   - Controllers are decorated with attributes like `[ApiController]` and `[Route]`.
+
+5. **appsettings.json**:
+   - Contains configuration settings like connection strings, logging settings, and custom configurations.
+   - It can be overridden by environment-specific files (e.g., `appsettings.Development.json`).
+
+6. **Program.cs**:
+   - Entry point of the application where the app is configured and started.
+   - Contains setup for services and middleware, including Swagger setup for API documentation.
+
+7. **WeatherForecast.cs (Model Class)**:
+   - Represents the data structure (e.g., weather information) returned by the API.
+   - Can be placed in the `Models` folder or directly at the project level.
+
+8. **MyFirstWebAPIProject.http**:
+   - Used for testing HTTP requests directly from the IDE (e.g., Visual Studio or JetBrains Rider).
+   - Contains HTTP requests like `GET`, `POST`, etc., which can be executed from the IDE.
+   - Provides convenience for testing API endpoints without external tools like Postman.
+---
+### File Breakdown in `launchSettings.json`:
+
+1. **Profiles**:
+   - **HTTP Profile**: Specifies the URL and port for HTTP requests (e.g., `http://localhost:5222`).
+   - **HTTPS Profile**: Specifies the URL and port for secure HTTPS requests, with SSL support.
+   - **IIS Express Profile**: Configuration for running the application with IIS Express.
+
+Here is the `launchSettings.json` file with the code comments explaining each section:
+
+```json
+{
+  "profiles": {
+    // HTTP Profile: Launches the app on HTTP with the specified URL
+    "http": {
+      "commandName": "Project",  // Runs the project directly
+      "launchBrowser": true,  // Automatically opens the browser
+      "launchUrl": "swagger",  // Opens the Swagger UI by default
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"  // Sets the environment to 'Development'
+      },
+      "dotnetRunMessages": true,  // Shows .NET run messages
+      "applicationUrl": "http://localhost:5222"  // Application URL for HTTP
+    },
+    // HTTPS Profile: Launches the app with HTTPS for secure communication
+    "https": {
+      "commandName": "Project",  // Runs the project directly
+      "launchBrowser": true,  // Automatically opens the browser
+      "launchUrl": "swagger",  // Opens the Swagger UI by default
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"  // Sets the environment to 'Development'
+      },
+      "dotnetRunMessages": true,  // Shows .NET run messages
+      "applicationUrl": "https://localhost:7237;http://localhost:5222"  // Application URLs for HTTPS and HTTP
+    },
+    // IIS Express Profile: Launches the app using IIS Express for local development
+    "IIS Express": {
+      "commandName": "IISExpress",  // Uses IIS Express to launch the app
+      "launchBrowser": true,  // Automatically opens the browser
+      "launchUrl": "swagger",  // Opens the Swagger UI by default
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"  // Sets the environment to 'Development'
+      }
+    }
+  },
+  "$schema": "http://json.schemastore.org/launchsettings.json",  // Defines the schema for this file
+  // IIS Express settings: Configures IIS Express for local development
+  "iisSettings": {
+    "windowsAuthentication": false,  // Disables Windows Authentication
+    "anonymousAuthentication": true,  // Enables anonymous authentication
+    "iisExpress": {
+      "applicationUrl": "http://localhost:1064",  // URL for IIS Express
+      "sslPort": 44312  // SSL Port for secure communication in IIS Express
+    }
+  }
+}
+```
+
+### Key Points:
+- **Profiles**:
+  - `http`: Launches on HTTP at `http://localhost:5222`.
+  - `https`: Launches on HTTPS at `https://localhost:7237` and HTTP at `http://localhost:5222`.
+  - `IIS Express`: Uses IIS Express on `http://localhost:1064`.
+  
+- **Environment Variables**: All profiles set `ASPNETCORE_ENVIRONMENT` to "Development" for local development.
+  
+- **IIS Settings**: Configures IIS Express with anonymous authentication enabled and SSL port set to `44312`.
+
+---
+### Advantages of `.http` File:
+- **Convenience**: Test API endpoints directly from the IDE.
+- **Version Control**: Can be checked into source control for collaboration.
+- **Documentation**: Serves as documentation for API endpoints.
+
+These are the core components and structure you will encounter in an ASP.NET Core Web API project created with Visual Studio and .NET 8.
+</details>
