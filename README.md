@@ -375,3 +375,386 @@ Each operation uses models to:
 
 --- 
 </details>
+
+## **Routing in ASP.NET Core Web API**
+<details>
+<summary> ---Expand--- </summary>
+
+Routing in ASP.NET Core Web API maps incoming HTTP requests to specific controller action methods. It determines how URLs correlate to actions and allows for efficient request handling.
+
+### **Two Types of Routing**
+1. **Conventional Routing**:
+   - Defined globally in the `Program.cs` file.
+   - Routes follow a predictable pattern (e.g., `api/{controller}/{action}/{id?}`).
+   - Suitable for simple or common routing structures.
+   - Example:
+     ```csharp
+     app.MapControllerRoute(
+         name: "default",
+         pattern: "api/{controller}/{action}/{id?}");
+     ```
+
+2. **Attribute Routing**:
+   - Defined directly on controllers or action methods using attributes.
+   - Offers flexibility for defining custom or complex URL patterns.
+   - Supports HTTP Verb attributes like `[HttpGet]`, `[HttpPost]`, `[HttpPut]`, etc.
+   - Example:
+     ```csharp
+     [Route("Emp/All")]
+     [HttpGet]
+     public string GetAllEmployees()
+     {
+         return "Response from GetAllEmployees Method";
+     }
+     ```
+
+### **Examples of Attribute Routing**
+- **Basic Route Definition**:
+   ```csharp
+   [Route("Emp/ById/{Id}")]
+   [HttpGet]
+   public string GetEmployeeById(int Id)
+   {
+       return $"Response from GetEmployeeById Method Id: {Id}";
+   }
+   ```
+   Access: `/Emp/ById/102`
+
+- **HTTP Verb Attributes**:
+   ```csharp
+   [HttpGet("api/products")]
+   public IActionResult GetAllProducts()
+   {
+       return Ok(new List<string> { "Product1", "Product2" });
+   }
+   ```
+
+### **How Routing Works**
+1. **Route Table Creation**:
+   - When `app.MapControllers()` is called, ASP.NET Core scans controllers and routes to create a route table.
+   - The route table maps URL patterns to controller actions.
+
+2. **Middleware**:
+   - **UseRouting** middleware determines the endpoint based on the request URL and method.
+   - **UseEndpoints** middleware executes the identified action method.
+
+3. **Mapping Requests**:
+   - Incoming requests are matched against the route table, and the action method is executed.
+
+### **Combining Routing Approaches**
+- You can use both conventional and attribute-based routing in the same application. Attribute routing takes precedence for actions decorated with route attributes.
+
+   Example:
+   ```csharp
+   [Route("Emp/All")]
+   [HttpGet]
+   public string GetAllEmployees() { ... }
+
+   [HttpGet]
+   public string GetEmployeeById(int Id) { ... }
+   ```
+   - `/Emp/All` → Attribute Routing.
+   - `/api/employee/GetEmployeeById/102` → Conventional Routing.
+
+### **When to Use Which**
+- **Conventional Routing**:
+  - Best for simple or uniform route patterns.
+  - Ideal for small or medium applications.
+- **Attribute Routing**:
+  - Suitable for APIs and large applications with complex or highly customized routes.
+
+---
+
+### **Route Parameters in ASP.NET Core Web API**
+- **Purpose**: Route parameters are used to include mandatory dynamic values directly in the URL path, such as entity identifiers or key attributes.
+- **Definition**: Use curly braces `{}` in the route template and match these with method parameters. Example:
+  ```csharp
+  [Route("Employee/{Id}")]
+  [HttpGet]
+  public string GetEmployeeById(int Id)
+  {
+      return $"Return Employee Details : {Id}";
+  }
+  ```
+  - **Example Usage**: `/Employee/100` retrieves the employee with ID `100`.
+
+#### **Passing Multiple Route Parameters**
+You can define multiple dynamic values in the route. For example:
+```csharp
+[Route("Employee/Gender/{Gender}/City/{CityId}")]
+[HttpGet]
+public string GetEmployeesByGenderAndCity(string Gender, int CityId)
+{
+    return $"Return Employees with Gender : {Gender}, City : {CityId}";
+}
+```
+- **Example Usage**: `/Employee/Gender/Male/City/10` retrieves employees based on gender `Male` and city `10`.
+
+---
+
+### **Query Strings in ASP.NET Core Web API**
+- **Purpose**: Query strings are used to pass optional, additional information in the URL. They are often used for filtering, sorting, and other flexible parameters.
+- **Syntax**: Key-value pairs are appended to the URL after a `?`, separated by `&`. Example:
+  ```csharp
+  [Route("Employee/Search")]
+  [HttpGet]
+  public string SearchEmployees(string? Department, string? Gender, string? City = null)
+  {
+      return $"Return Employees with Department : {Department}, Gender : {Gender}, City : {City}";
+  }
+  ```
+  - **Example Usage**:
+    - `/Employee/Search?Department=IT` filters by department.
+    - `/Employee/Search?Gender=Male&City=NewYork` filters by gender and city.
+
+#### **Using Query Strings with Model Binding**
+Complex query strings can be mapped to an object model using the `[FromQuery]` attribute. Example:
+```csharp
+public class EmployeeSearch
+{
+    public string? Department { get; set; }
+    public string? Gender { get; set; }
+    public string? City { get; set; }
+}
+
+[Route("Employee/Search")]
+[HttpGet]
+public string SearchEmployees([FromQuery] EmployeeSearch employeeSearch)
+{
+    return $"Return Employees with Department : {employeeSearch.Department}, Gender : {employeeSearch.Gender}, City : {employeeSearch.City}";
+}
+```
+This allows passing multiple parameters like `/Employee/Search?Gender=Male&City=London`.
+
+---
+
+### **Combining Route Parameters and Query Strings**
+It is possible to mix route parameters and query strings. Example:
+```csharp
+[Route("Employee/{Gender?}")]
+[HttpGet]
+public string GetEmployeesByGenderAndCity(string? Gender, int? CityId, string? Department)
+{
+    return $"Return Employees with Gender: {Gender}, City: {CityId}, Department: {Department}";
+}
+```
+- **Example Usage**: `/Employee/Male?Department=HR&CityId=100` combines the gender from the route and other filters as query strings.
+
+---
+
+### **Key Differences Between Route Parameters and Query Strings**
+| **Aspect**         | **Route Parameters**                             | **Query Strings**                                   |
+|---------------------|--------------------------------------------------|----------------------------------------------------|
+| **Position**        | Part of the URL path (e.g., `/Employee/100`).    | Appended after `?` in the URL (e.g., `?City=NY`).  |
+| **Optionality**     | Typically mandatory.                            | Optional and flexible.                             |
+| **Purpose**         | Identify specific resources.                    | Provide additional information or filtering.       |
+| **Use Cases**       | Entity IDs, resource-specific paths.            | Filters, sorting, optional configurations.         |
+
+---
+
+### **Accessing Query Strings Directly from `HttpContext`**
+If you prefer not to use method parameters, query strings can be accessed directly:
+```csharp
+[Route("Employee/Search")]
+[HttpGet]
+public string SearchEmployees()
+{
+    var Department = HttpContext.Request.Query["Department"].ToString();
+    var Gender = HttpContext.Request.Query["Gender"].ToString();
+    return $"Return Employees with Department : {Department}, Gender : {Gender}";
+}
+```
+
+---
+
+### **Best Practices**
+1. Use **route parameters** for essential, non-optional values (e.g., resource identifiers).
+2. Use **query strings** for optional or additional filtering criteria.
+3. For complex query string scenarios, leverage **model binding** with `[FromQuery]`.
+4. Ensure clear, consistent API design by following RESTful principles.
+
+--- 
+
+### **Scenarios for Multiple URLs for a Single Resource**
+Here are some scenarios where setting up multiple URLs for a single resource is beneficial:
+
+a) API Versioning
+Different URLs for different API versions:
+
+```csharp
+[Route("api/v1/resource")]
+[Route("api/v2/resource")]
+```
+b) Backward Compatibility
+When renaming an endpoint or modifying its structure, you can keep the old route alongside the new route:
+```csharp
+[Route("api/legacy-resource")]
+[Route("api/resource")]
+```
+c) Supporting Alternate Naming Conventions
+If different client applications use different naming conventions:
+```csharp
+[Route("employees")]
+[Route("workers")]
+```
+---
+### **Token Replacement in ASP.NET Core Web API Routing**
+
+### **Common Tokens**:
+- **`[controller]`**: Replaces with the controller name.
+- **`[action]`**: Replaces with the action method name.
+- **`{id}`**: Represents a route parameter.
+
+---
+
+### **Example Without Token Replacement**:
+Explicit routes for each action:
+
+```csharp
+[ApiController]
+public class EmployeeController : ControllerBase
+{
+    [Route("Employee/GetAllEmployees")]
+    [HttpGet]
+    public string GetAllEmployees() => "All Employees";
+
+    [Route("Employee/GetAllDepartment")]
+    [HttpGet]
+    public string GetAllDepartment() => "All Departments";
+}
+```
+
+---
+
+### **Using Token Replacement**:
+With tokens like `[controller]` and `[action]`, you can simplify routing:
+
+```csharp
+[ApiController]
+[Route("[controller]")]
+public class EmployeeController : ControllerBase
+{
+    [Route("[action]")]
+    [HttpGet]
+    public string GetAllEmployees() => "All Employees";
+
+    [Route("[action]")]
+    [HttpGet]
+    public string GetAllDepartment() => "All Departments";
+}
+```
+
+**Resulting URLs**:
+- `/Employee/GetAllEmployees`
+- `/Employee/GetAllDepartment`
+
+---
+
+### **Apply Token Replacement at Controller Level**:
+Instead of repeating `[Route("[action]")]` on each method, apply the token at the controller level:
+
+```csharp
+[ApiController]
+[Route("[controller]/[action]")]
+public class EmployeeController : ControllerBase
+{
+    [HttpGet]
+    public string GetAllEmployees() => "All Employees";
+
+    [HttpGet]
+    public string GetAllDepartment() => "All Departments";
+}
+```
+
+---
+
+### **Dynamic Token Replacement**:
+You can also use dynamic parameters:
+
+```csharp
+[ApiController]
+[Route("[controller]/[action]")]
+public class EmployeeController : ControllerBase
+{
+    [HttpGet]
+    [Route("{id}")]
+    public string GetEmployeeById(int id) => $"Employee ID: {id}";
+}
+```
+
+**Resulting URL**:
+- `/Employee/GetEmployeeById/10` (for `id = 10`)
+
+---
+
+### **Benefits**:
+- **Clean & Consistent Routes**: Automatically adjusts for controller and action name changes.
+- **Dynamic URLs**: Supports parameters like `{id}`.
+- **Less Repetition**: Reduces code duplication by defining common routes at the controller level.
+
+---
+### **Route Constraints**
+Route Constraints in ASP.NET Core Web API allow developers to define rules that restrict the values of parameters in routes. These constraints help ensure that the API only processes valid requests and routes them to the correct action methods. They improve routing accuracy, reduce unnecessary processing, and enhance security by validating requests before they reach the action methods.
+
+### Types of Route Constraints in ASP.NET Core Web API:
+
+1. **Type Constraints**:
+   - Ensure parameters are of a specific type.
+   - Common types include `int`, `decimal`, `bool`, `float`, `datetime`, etc.
+   - Example: `[Route("{EmployeeId:int}")]` ensures the `EmployeeId` parameter is an integer.
+
+2. **Min/Max Constraints**:
+   - Define the minimum (`min`) or maximum (`max`) values that a parameter can have.
+   - Example: `[Route("{EmployeeId:int:min(1000)}")]` ensures the `EmployeeId` is greater than or equal to 1000.
+
+3. **Range Constraint**:
+   - Specifies both a minimum and maximum range for numeric values.
+   - Example: `[Route("{EmployeeId:int:range(100,1000)}")]` ensures the `EmployeeId` is between 100 and 1000.
+
+4. **Alpha Constraint**:
+   - Restricts a parameter to only alphabetic characters (a-z, A-Z).
+   - Example: `[Route("{EmployeeName:alpha}")]` ensures the `EmployeeName` consists only of letters.
+
+5. **MinLength/MaxLength/Length Constraints**:
+   - Enforces constraints on the length of string parameters.
+   - Example: `[Route("{EmployeeName:alpha:minlength(5)}")]` ensures `EmployeeName` is at least 5 characters long.
+   - Example: `[Route("{EmployeeName:alpha:maxlength(10)}")]` ensures `EmployeeName` is no longer than 10 characters.
+   - Example: `[Route("{EmployeeName:alpha:length(5)}")]` ensures `EmployeeName` is exactly 5 characters long.
+
+6. **Regex Constraint**:
+   - Uses a regular expression to validate the parameter against a specific pattern.
+   - Example: `[Route("{EmployeeName:regex(a(b|c))}")]` ensures that `EmployeeName` starts with "a" followed by either "b" or "c".
+
+### Example of Route Constraints in Action:
+```csharp
+[Route("{EmployeeId:int:min(1000):max(10000)}")]
+[HttpGet]
+public string GetEmployeeDetails(int EmployeeId)
+{
+    return $"Employee ID: {EmployeeId}";
+}
+```
+In this example:
+- The route accepts only integers (`int`).
+- The `EmployeeId` must be between 1000 and 10000 (`min(1000):max(10000)`).
+
+### Benefits of Using Route Constraints:
+1. **Validation at the Routing Level**:
+   - Validates the parameters before they reach the action method, preventing invalid requests from processing further.
+   
+2. **Improved Security**:
+   - Helps mitigate security issues by ensuring only properly formatted and safe inputs are allowed.
+   
+3. **Precise URL Matching**:
+   - Allows fine-grained control over which requests match specific actions, improving the accuracy of route handling.
+
+4. **Better Error Handling**:
+   - Route constraints ensure that only valid requests hit the corresponding action methods, leading to fewer errors and less need for additional validation inside the action methods.
+
+5. **Simplified Code**:
+   - By specifying route constraints directly in the route attributes, developers can avoid writing extra validation code in the controller methods.
+
+
+</details>
+
+
