@@ -758,3 +758,101 @@ In this example:
 </details>
 
 
+## **Model Binding**
+<details>
+<summary> ---Expand--- </summary>
+
+### **What is Model Binding in ASP.NET Core Web API?**
+- **Model Binding** is the process where ASP.NET Core maps HTTP request data to action method parameters.
+- It extracts and converts data from sources like:
+  - Query strings
+  - Form data
+  - Route data
+  - Request bodies
+- This allows developers to work with strongly-typed .NET objects instead of parsing request data manually.
+
+---
+
+### **Why is Model Binding Important?**
+1. **Simplifies Data Access**: Automates the process of extracting and converting data.
+2. **Supports Multiple Sources**: Works with query strings, form data, JSON bodies, headers, etc.
+3. **Strong Typing**: Converts data into strongly-typed objects for validation and easier use.
+4. **Validation Integration**: Works seamlessly with validation attributes to ensure data integrity.
+
+---
+
+### **How HTTP Verbs Map to Action Methods?**
+- **Routing Attributes**: Attributes like `[HttpGet]`, `[HttpPost]`, etc., specify the HTTP method for an action.
+- **Route Templates**: URLs defined in `Route` attributes or configuration guide request-to-method mapping.
+
+---
+
+### **Model Binding Techniques**
+- **[FromBody]**: Binds from the request body (e.g., JSON).
+- **[FromForm]**: Binds from posted form fields.
+- **[FromQuery]**: Binds from the query string.
+- **[FromRoute]**: Binds from route data.
+- **[FromHeader]**: Binds from HTTP headers.
+
+---
+
+### **Types of Model Binders**
+1. **Simple Types Binder**: Handles basic types (e.g., `int`, `string`).
+2. **Complex Types Binder**: Binds complex types using JSON or XML serialization.
+3. **Custom Binders**: For advanced scenarios requiring custom logic (via `IModelBinder`).
+
+---
+
+### **Built-in Model Binders**
+- `QueryStringModelBinder`: For query strings.
+- `RouteDataModelBinder`: For route data.
+- `FormModelBinder`: For form data.
+- `BodyModelBinder`: For request body data.
+- `HeaderModelBinder`: For HTTP headers.
+
+---
+
+### **Value Providers**
+- Fetch data from specific parts of the HTTP request.
+  - **QueryStringValueProvider**: Data from the URL's query string.
+  - **FormValueProvider**: Data from `application/x-www-form-urlencoded` or `multipart/form-data`.
+  - **RouteDataValueProvider**: Data from route parameters.
+  - **HeaderValueCollectionProvider**: Data from HTTP headers.
+  - **JsonBodyValueProvider**: Data from JSON-formatted request bodies.
+
+---
+
+### **Error Handling in Model Binding**
+1. **Validation with ModelState**:
+   - Use `ModelState.IsValid` to check for errors.
+   - Return **BadRequest** with errors if invalid.
+2. **NotFound Responses**:
+   - Return **404 Not Found** when requested data isn’t available.
+3. **Custom Error Responses**:
+   - Tailor error responses as per application requirements.
+
+---
+
+### **Example: Product Management API**
+- **Model**: `Product` class with validation attributes (e.g., `[Required]`, `[Range]`).
+- **Controller**: `ProductsController` with methods demonstrating model binding:
+  - **GetProduct**: `[FromRoute]` to bind ID.
+  - **GetProducts**: `[FromQuery]` to filter by category.
+  - **CreateProduct**: `[FromBody]` for JSON request body.
+  - **UpdateProduct**: Combines `[FromRoute]` and `[FromBody]`.
+  - **DeleteProduct**: `[FromRoute]` for ID.
+  - **GetProductFromHeader**: `[FromHeader]` to extract from custom headers.
+  - **UploadFile**: `[FromForm]` to handle file uploads.
+
+---
+
+### **How Model Binding Works?**
+1. **Routing**: Identifies the controller and action method.
+2. **Source Identification**: Determines data source (e.g., query string, form, body).
+3. **Type Matching**: Matches data type with the target parameter or model.
+4. **Conversion**: Converts source data into the target type.
+5. **Data Assignment**: Assigns the converted data to method parameters or model properties.
+
+---
+
+</details>
